@@ -1,34 +1,58 @@
 import shutil
 import wget
 import humanize
+import re
 import os
 from os import path
 from urllib.parse import urlparse
+from pathlib import Path
 
 
 # noinspection HttpUrlsUsage
 def main():
     print('Downloading data from The Lakh MIDI Dataset (https://colinraffel.com/projects/lmd/)')
-    lakh_base_url = 'http://hog.ee.columbia.edu/craffel/lmd'
-    download_and_extract('LMD-aligned', f'{lakh_base_url}/lmd_aligned.tar.gz')
-    download_and_extract('LMD-matched metadata', f'{lakh_base_url}/lmd_matched_h5.tar.gz')
+    lakh_url = 'http://hog.ee.columbia.edu/craffel/lmd'
+    lakh_dir = 'lmd'
+    download_and_extract('LMD-matched', f'{lakh_url}/lmd_matched.tar.gz', lakh_dir)
+    download_and_extract('LMD-aligned', f'{lakh_url}/lmd_aligned.tar.gz', lakh_dir)
+    download_and_extract('LMD-matched metadata', f'{lakh_url}/lmd_matched_h5.tar.gz', lakh_dir)
+    print()
+
+    print('Downloading data from MAESTRO Dataset ()')
+    maestro_url = 'https://storage.googleapis.com/magentadata/datasets/maestro/v3.0.0'
+    maestro_dir = 'maestro'
+    download_and_extract('maestro-v3-midi', f'{maestro_url}/maestro-v3.0.0-midi.zip', maestro_dir)
 
 
-def download_and_extract(name: str, url: str, overwrite: bool = False):
-    filename = download(name, url, overwrite=overwrite)
-    extract(filename)
-    os.remove(filename)
+def download_and_extract(name: str, url: str, target_dir: str = '.', overwrite: bool = False):
+    extracted_dirname, filename = get_extracted_dirname(url, target_dir)
+    if not path.exists(extracted_dirname):
+        filename = download(name, url, target_dir, overwrite=overwrite)
+        extract(filename, extract_dir=extracted_dirname)
+    else:
+        print(f'{extracted_dirname} already exists')
+    if path.exists(filename):
+        os.remove(filename)
 
 
-def download(name: str, url: str, overwrite: bool = False) -> str:
+def download(name: str, url: str, target_dir: str = '.', overwrite: bool = False) -> str:
     filename = path.basename(urlparse(url).path)
+    filename = path.join(target_dir, filename)
+
     if not path.exists(filename) or overwrite:
-        wget.download(url, bar=download_bar(name))
+        Path(target_dir).mkdir(parents=True, exist_ok=True)
+        filename = wget.download(url, out=target_dir, bar=download_bar(name))
         print()
     else:
         print(f'{filename} already exists')
 
     return filename
+
+
+def get_extracted_dirname(url: str, target_dir: str = '.') -> (str, str):
+    filename = path.basename(urlparse(url).path)
+    dirname = re.sub(r'(\.tar\.gz|\.zip)$', '', filename)
+    return path.join(target_dir, dirname), filename
 
 
 def download_bar(name: str):
@@ -41,9 +65,9 @@ def download_bar(name: str):
     return bar
 
 
-def extract(filename: str):
+def extract(filename: str, extract_dir: str):
     print(f'Extracting {filename}...', end=' ')
-    shutil.unpack_archive(filename)
+    shutil.unpack_archive(filename, extract_dir=extract_dir)
     print('Done!')
 
 
