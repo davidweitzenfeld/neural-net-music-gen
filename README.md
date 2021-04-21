@@ -18,3 +18,13 @@ Make sure to update `requirements.txt` after adding a new package:
 ```shell
 pip freeze > requirements.txt # only if pip is in a project-only environment
 ```
+
+### Data
+
+Data for running and executing the models is in the `./data` directory.
+
+Execute the following command to download all necessary data:
+
+```shell
+python data/download.py
+```
