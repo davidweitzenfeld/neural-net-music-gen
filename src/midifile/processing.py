@@ -1,17 +1,16 @@
 import fractions
 import re
-import time
 import os
 from os import path
 from multiprocessing import Pool
 from tqdm import tqdm
-
+import midifile.notematrix as notematrix
 import music21.midi.realtime
 import numpy as np
 from music21 import *
 from sklearn.preprocessing import MultiLabelBinarizer
 
-DATA_DIR = path.join('..', 'data')
+DATA_DIR = path.join('../..', 'data')
 
 ENCODER_CLASSES = {
     'note': range(128),
@@ -28,22 +27,27 @@ ENCODER_CLASSES = {
 
 
 def main():
-    encode_dataset_to_matrix(path.join(DATA_DIR, 'maestro'))
+    encode_dataset_to_matrix(path.join(DATA_DIR, 'maestro'), dshieble_parse_and_save)
 
 
-def encode_dataset_to_matrix(dirname: str) -> int:
+def encode_dataset_to_matrix(dirname: str, parse_and_save_fn) -> int:
     filenames = get_midi_list(dirname)
 
     pool = Pool(processes=16)
-    for _ in tqdm(pool.imap_unordered(parse_and_save, filenames),
+    for _ in tqdm(pool.imap_unordered(parse_and_save_fn, filenames),
                   total=len(filenames), desc='Encoding', unit='song'):
         pass
 
     return len(filenames)
 
 
-def parse_and_save(filename: str):
-    song = read_midi(filename)
+def dshieble_parse_and_save(filename: str):
+    matrix = notematrix.midi_to_note_matrix(filename)
+    np.save(re.sub(r'\.\w+$', '-dshieble-matrix.npy', filename), matrix)
+
+
+def stanford_parse_and_save(filename: str):
+    song = read_midi_music21(filename)
     matrix = midi_to_matrix(song)
     np.save(re.sub(r'\.\w+$', '-matrix.npy', filename), matrix)
 
@@ -94,7 +98,7 @@ def get_midi_list(dirname: str) -> [str]:
     return files
 
 
-def read_midi(filename: str) -> music21.stream.Stream:
+def read_midi_music21(filename: str) -> music21.stream.Stream:
     return converter.parseFile(filename, format='midi', quantizePost=True)
 
 
