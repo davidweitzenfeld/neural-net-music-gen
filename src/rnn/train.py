@@ -65,9 +65,9 @@ def train(notes: [int], seq_len: int, batch_size: int, epoch_count: int):
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description='Model training.')
-    parser.add_argument('--seq_len', type=int, nargs=1, default=50)
-    parser.add_argument('--batch_size', type=int, nargs=1, default=32)
-    parser.add_argument('--epoch_count', type=int, nargs=1, default=25)
-    parser.add_argument('--artist', type=str, nargs=1, default='Alexander Scriabin')
+    parser.add_argument('--seq_len', type=int, nargs='?', default=50)
+    parser.add_argument('--batch_size', type=int, nargs='?', default=32)
+    parser.add_argument('--epoch_count', type=int, nargs='?', default=25)
+    parser.add_argument('--artist', type=str, nargs='?', default='Alexander Scriabin')
     args = parser.parse_args()
     main(args.seq_len, args.batch_size, args.epoch_count, args.artist)
