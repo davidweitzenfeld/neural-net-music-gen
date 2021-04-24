@@ -7,8 +7,10 @@ def create_lstm_rnn_model(input_shape, vocab_size: int):
         name='lstm_rnn_model',
         layers=[
             tfkl.LSTM(units=128, input_shape=input_shape[1:], return_sequences=True),
+            tfkl.LSTM(units=256, return_sequences=True),
             tfkl.Dropout(rate=0.2),
             tfkl.Flatten(),
+            tfkl.Dense(units=384),
             tfkl.Dense(units=vocab_size),
             tfkl.Softmax(),
         ]
