@@ -55,7 +55,7 @@ def train(notes: [int], seq_len: int, batch_size: int, epoch_count: int, artist:
     config_filename = path.join(WEIGHTS_DIR, f'{training_id}.config.json')
     write_dict(config_filename, {'seq_len': seq_len, 'batch_size': batch_size,
                                  'epoch_count': epoch_count, 'artist': artist})
-    checkpoint_filename = path.join(WEIGHTS_DIR, f'{training_id}.checkpoint.hdf5')
+    checkpoint_filename = path.join(WEIGHTS_DIR, f'{training_id}.weights.hdf5')
     checkpoint = tfk.callbacks.ModelCheckpoint(checkpoint_filename,
                                                monitor='loss', save_best_only=True)
 
