@@ -4,7 +4,10 @@
 #
 
 
-import midi
+try:
+  import midi
+except ImportError:
+  pass
 import numpy as np
 
 lowerBound = 24
