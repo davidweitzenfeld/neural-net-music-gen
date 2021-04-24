@@ -2,7 +2,8 @@ import argparse
 import numpy as np
 import tensorflow.keras as tfk
 
-from midifile.processing import get_midi_list, notes_to_midi
+from music21 import *
+from midifile.processing import *
 from train import load_shubham_training_data, notes_to_matrix
 from model import create_lstm_rnn_model
 from utils import *
@@ -27,13 +28,15 @@ def main(training_id: str):
     config = load_dict(config_filename)
 
     print('Loading data.')
-    song_filenames = get_midi_list(DATASET_DIR)
-    notes = load_shubham_training_data(song_filenames, config['seq_len'])[:10_000]
+    song_filenames = get_maestro_midi_list_by_composer(DATASET_DIR)[config['artist']]
+    notes = load_shubham_training_data(song_filenames, config['seq_len'])
 
-    generate_song(notes, weights_filename, output_filename, config['seq_len'])
+    song = generate_song(notes, weights_filename, output_filename, config['seq_len'])
+    song.plot()
 
 
-def generate_song(data: [str], weights_filename: str, output_filename: str, seq_len: int):
+def generate_song(data: [str], weights_filename: str, output_filename: str, seq_len: int) \
+        -> stream.Stream:
     note_names = sorted(set(data))
     vocab_size = len(note_names)
 
@@ -47,6 +50,7 @@ def generate_song(data: [str], weights_filename: str, output_filename: str, seq_
     generated = generate_notes(model, inputs, note_names)
     song = notes_to_midi(generated)
     song.write('midi', fp=output_filename)
+    return song
 
 
 def generate_notes(model: tfk.Model, inputs: np.ndarray, note_names: [str]):
