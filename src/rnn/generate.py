@@ -23,7 +23,7 @@ def main(training_id: str):
     config_filename = path.join(WEIGHTS_DIR, f'{training_id}.config.json')
     weights_filename = path.join(WEIGHTS_DIR, f'{training_id}.weights.hdf5')
     output_filename = path.join(OUTPUTS_DIR, f'{training_id}.sample.mid')
-    assert_all_exist([config_filename, weights_filename, output_filename])
+    assert_all_exist([config_filename, weights_filename])
 
     config = load_dict(config_filename)
 
@@ -82,4 +82,4 @@ if __name__ == '__main__':
     parser = argparse.ArgumentParser(description='Song generation.')
     parser.add_argument('--training_id', type=str, nargs='?')
     args = parser.parse_args()
-    main(args.training_id or input('Training ID?'))
+    main(args.training_id or input('Training ID? '))
