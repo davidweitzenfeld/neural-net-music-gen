@@ -19,10 +19,10 @@ WEIGHTS_DIR = path.join(ROOT_DIR, 'weights', 'rnn')
 OUTPUTS_DIR = path.join(ROOT_DIR, 'outputs', 'rnn')
 
 
-def main(training_id: str, gen_seq_len: int):
+def main(training_id: str, gen_seq_len: int, name: str):
     config_filename = path.join(WEIGHTS_DIR, f'{training_id}.config.json')
     weights_filename = path.join(WEIGHTS_DIR, f'{training_id}.weights.hdf5')
-    output_filename = path.join(OUTPUTS_DIR, f'{training_id}.sample.mid')
+    output_filename = path.join(OUTPUTS_DIR, f'{training_id}.{name}.mid')
     assert_all_exist([config_filename, weights_filename])
 
     config = load_dict(config_filename)
