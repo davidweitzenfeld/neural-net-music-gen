@@ -4,6 +4,7 @@ import random
 import string
 from os import path
 from typing import Dict
+from pathlib import Path
 
 
 def rand_str(str_len: int, alphabet: [str] = string.ascii_lowercase) -> str:
@@ -11,6 +12,7 @@ def rand_str(str_len: int, alphabet: [str] = string.ascii_lowercase) -> str:
 
 
 def write_dict(filename: str, content: Dict):
+    Path(path.dirname(filename)).mkdir(parents=True, exist_ok=True)
     with open(filename, 'w') as f:
         json.dump(content, f)
 
