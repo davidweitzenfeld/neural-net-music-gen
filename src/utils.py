@@ -3,8 +3,8 @@ import os
 import random
 import string
 from os import path
-from typing import Dict
 from pathlib import Path
+from typing import Dict
 
 
 def rand_str(str_len: int, alphabet: [str] = string.ascii_lowercase) -> str:

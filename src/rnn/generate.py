@@ -1,13 +1,12 @@
 import argparse
-import numpy as np
-import tensorflow.keras as tfk
 
-from music21 import *
-from midifile.processing import *
-from train import load_shubham_training_data, notes_to_matrix
-from model import create_lstm_rnn_model
-from utils import *
+import tensorflow.keras as tfk
 from tqdm import trange
+
+from midifile.processing import *
+from model import create_lstm_rnn_model
+from train import load_shubham_training_data, notes_to_matrix
+from utils import *
 
 ROOT_DIR = root_dir(2, __file__)
 DATA_DIR = path.join(ROOT_DIR, 'data')
@@ -82,5 +81,6 @@ if __name__ == '__main__':
     parser = argparse.ArgumentParser(description='Song generation.')
     parser.add_argument('--training_id', type=str, nargs='?')
     parser.add_argument('--seq_len', type=int, nargs='?', default=150)
+    parser.add_argument('--name', type=str, nargs='?', default='sample')
     args = parser.parse_args()
-    main(args.training_id or input('Training ID? '), args.seq_len)
+    main(args.training_id or input('Training ID? '), args.seq_len, args.name)

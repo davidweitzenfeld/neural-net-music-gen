@@ -3,9 +3,9 @@ import re
 import subprocess
 
 import numpy as np
+from matplotlib import pyplot as plt
 
 from utils import *
-from matplotlib import pyplot as plt
 
 ROOT_DIR = root_dir(1, __file__)
 

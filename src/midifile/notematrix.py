@@ -5,9 +5,9 @@
 
 
 try:
-  import midi
+    import midi
 except ImportError:
-  pass
+    pass
 import numpy as np
 
 lowerBound = 24

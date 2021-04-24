@@ -1,18 +1,19 @@
 import csv
 import fractions
+import os
 import pickle
 import re
-import os
-from os import path
 from multiprocessing import Pool
-from typing import Union, Optional
+from os import path
+from typing import Optional, Union
 
-from tqdm import tqdm
-import midifile.notematrix as notematrix
 import music21.midi.realtime
 import numpy as np
 from music21 import *
 from sklearn.preprocessing import MultiLabelBinarizer
+from tqdm import tqdm
+
+import midifile.notematrix as notematrix
 
 DATA_DIR = path.join('../..', 'data')
 
