@@ -26,5 +26,5 @@ Data for running and executing the models is in the `./data` directory.
 Execute the following command to download all data:
 
 ```shell
-python data/download.py # optionally add --datasets [lmd, maestro]
+python data/download.py # optionally add --datasets [lmd, maestro, maestro-notes-pl]
 ```

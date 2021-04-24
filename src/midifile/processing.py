@@ -1,8 +1,12 @@
+import csv
 import fractions
+import pickle
 import re
 import os
 from os import path
 from multiprocessing import Pool
+from typing import Union, Optional
+
 from tqdm import tqdm
 import midifile.notematrix as notematrix
 import music21.midi.realtime
@@ -27,7 +31,7 @@ ENCODER_CLASSES = {
 
 
 def main():
-    encode_dataset_to_matrix(path.join(DATA_DIR, 'maestro'), dshieble_parse_and_save)
+    encode_dataset_to_matrix(path.join(DATA_DIR, 'maestro'), shubham_parse_and_save)
 
 
 def encode_dataset_to_matrix(dirname: str, parse_and_save_fn) -> int:
@@ -50,6 +54,13 @@ def stanford_parse_and_save(filename: str):
     song = read_midi_music21(filename)
     matrix = midi_to_matrix(song)
     np.save(re.sub(r'\.\w+$', '-matrix.npy', filename), matrix)
+
+
+def shubham_parse_and_save(filename: str):
+    song = read_midi_music21(filename)
+    notes = midi_to_notes(song)
+    with open(re.sub(r'\.\w+$', '-notes.pl', filename), 'wb') as f:
+        pickle.dump(notes, f)
 
 
 # noinspection HttpUrlsUsage
@@ -90,12 +101,94 @@ def midi_to_matrix(song: stream.Stream) -> np.ndarray:
         ]])
 
 
+def midi_to_notes(song: stream.Stream) -> [str]:
+    """
+    Creates an ordered list of notes for the given song.
+
+    Based on https://github.com/shubham3121/music-generation-using-rnn.
+    """
+    str_notes = []
+
+    try:
+        parts = instrument.partitionByInstrument(song)
+    except:
+        parts = None
+
+    if parts:
+        notes = parts.parts[0].recurse()
+    else:
+        notes = song.flat.notes
+
+    for n in notes:
+        if isinstance(n, note.Note):
+            str_notes.append(str(n.pitch))
+        elif isinstance(n, chord.Chord):
+            str_notes.append('.'.join(str(x) for x in n.normalOrder))
+
+    return str_notes
+
+
+def notes_to_matrix(notes: [str], seq_len: int = 100):
+    note_names = sorted(set(notes))
+    note_to_int = {n: i for i, n in enumerate(note_names)}
+    vocab_size = len(note_names)
+
+    inputs, outputs = [], []
+    for i in range(0, len(notes) - seq_len):
+        seq_in, seq_out = notes[i: i + seq_len], notes[i + seq_len]
+        inputs.append([note_to_int[s] for s in seq_in])
+        outputs.append(note_to_int[seq_out])
+
+    inputs = np.expand_dims(inputs, axis=2)
+    inputs = inputs / vocab_size
+    outputs = np.eye(len(note_names))[outputs]
+
+    return inputs, outputs
+
+
+def notes_to_midi(note_strs: [str], midi_instrument: instrument.Instrument = instrument.Piano()) \
+        -> stream.Stream:
+    def get_note(note_id: Union[str, int], note_offset: Optional[int] = None):
+        new_note = note.Note(note_id)
+        new_note.storedInstrument = midi_instrument
+        if note_offset is not None:
+            new_note.offset = note_offset
+        return new_note
+
+    def get_chord(chord_id: str, chord_offset: int):
+        notes_in_chord = [get_note(int(n)) for n in chord_id.split('.')]
+        new_chord = chord.Chord(notes_in_chord)
+        new_chord.offset = chord_offset
+        return new_chord
+
+    notes = [get_chord(note_str, offset) if ('.' in note_str) or note_str.isdigit()
+             else get_note(note_str, offset)
+             for note_str, offset in zip(note_strs, np.arange(len(note_strs)) * 0.5)]
+
+    return stream.Stream(notes)
+
+
 def get_midi_list(dirname: str) -> [str]:
     files = [path.join(root, file)
              for root, _, files in os.walk(dirname)
              for file in files
              if re.search(r'\.midi?$', file)]
     return files
+
+
+def get_maestro_midi_list_by_composer(dirname: str) -> {str: [str]}:
+    dataset_root = path.join(dirname, 'maestro-v3.0.0-midi', 'maestro-v3.0.0')
+    csv_filename = path.join(dataset_root, 'maestro-v3.0.0.csv')
+    with open(csv_filename, encoding='utf8') as f:
+        reader = csv.DictReader(f)
+        data = list(reader)
+
+    by_composer = {item['canonical_composer']: [] for item in data}
+    for item in data:
+        by_composer[item['canonical_composer']].append(
+            path.join(*([dataset_root] + item['midi_filename'].split('/'))))
+
+    return by_composer
 
 
 def read_midi_music21(filename: str) -> music21.stream.Stream:

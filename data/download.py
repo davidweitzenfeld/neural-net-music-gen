@@ -4,6 +4,7 @@ import humanize
 import re
 import os
 import argparse
+import gdown
 from os import path
 from urllib.parse import urlparse
 from pathlib import Path
@@ -32,6 +33,12 @@ def main(datasets: str):
                              maestro_dir)
         print()
 
+    if 'maestro-notes-pl' in datasets or len(datasets) == 0:
+        print('Downloading processed MAESTRO dataset data \'maestro-notes-pl\'')
+        maestro_dir = path.join(DATA_DIR, 'maestro')
+        download_and_extract_processed('maestro-notes-pl', '1cOW5VD1AYswzVy98tozbW8LvjyTspVN-',
+                                       target_dir=maestro_dir)
+
 
 def download_and_extract(name: str, url: str, target_dir: str = '.', overwrite: bool = False):
     extracted_dirname, filename = get_extracted_dirname(url, target_dir)
@@ -42,6 +49,12 @@ def download_and_extract(name: str, url: str, target_dir: str = '.', overwrite: 
         print(f'{extracted_dirname} already exists')
     if path.exists(filename):
         os.remove(filename)
+
+
+def download_and_extract_processed(name: str, gdrive_id: str, target_dir: str = '.'):
+    url = f'https://drive.google.com/uc?id={gdrive_id}'
+    filename = gdown.download(url, output=path.join(target_dir, f'{name}.zip'))
+    gdown.extractall(filename)
 
 
 def download(name: str, url: str, target_dir: str = '.', overwrite: bool = False) -> str:
@@ -82,6 +95,7 @@ def extract(filename: str, extract_dir: str):
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description='Data downloading.')
-    parser.add_argument('--datasets', type=str, nargs='*', choices=['lmd', 'maestro'])
+    parser.add_argument('--datasets', type=str, nargs='*',
+                        choices=['lmd', 'maestro', 'maestro-notes-pl'])
     args = parser.parse_args()
     main(args.datasets or [])
