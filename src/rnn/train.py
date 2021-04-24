@@ -22,7 +22,7 @@ def main(seq_len: int, batch_size: int, epoch_count: int, artist: str):
     notes = load_shubham_training_data(song_filenames, seq_len)
     print('Loaded data.')
 
-    train(notes, seq_len, batch_size, epoch_count)
+    train(notes, seq_len, batch_size, epoch_count, artist)
 
 
 def load_dshieble_training_data(song_filenames: [str], timestep_count: int):
@@ -43,7 +43,7 @@ def load_shubham_training_data(song_filenames: [str], timestep_count: int):
     return notes
 
 
-def train(notes: [int], seq_len: int, batch_size: int, epoch_count: int):
+def train(notes: [int], seq_len: int, batch_size: int, epoch_count: int, artist: str):
     print('Processing training data.')
     inputs, targets = notes_to_matrix(notes, seq_len)
 
@@ -53,8 +53,8 @@ def train(notes: [int], seq_len: int, batch_size: int, epoch_count: int):
 
     training_id = rand_str(5)
     config_filename = path.join(WEIGHTS_DIR, f'{training_id}.config.json')
-    write_dict(config_filename,
-               {'seq_len': seq_len, 'batch_size': batch_size, 'epoch_count': epoch_count})
+    write_dict(config_filename, {'seq_len': seq_len, 'batch_size': batch_size,
+                                 'epoch_count': epoch_count, 'artist': artist})
     checkpoint_filename = path.join(WEIGHTS_DIR, f'{training_id}.checkpoint.hdf5')
     checkpoint = tfk.callbacks.ModelCheckpoint(checkpoint_filename,
                                                monitor='loss', save_best_only=True)
