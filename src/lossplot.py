@@ -10,11 +10,12 @@ from matplotlib import pyplot as plt
 ROOT_DIR = root_dir(1, __file__)
 
 name_by_training_id = {
-    'wbcyq': {'name': 'Simple on Mozart.', 'sort_key': 0},
-    'recnk': {'name': 'Simple on Rachmaninoff.', 'sort_key': 1},
-    'ypwyy': {'name': 'Simple on Scriabin.', 'sort_key': 2},
-    'qzkor': {'name': 'Complex with $s=50$ on Mozart.', 'sort_key': 3},
-    'lkahp': {'name': 'Complex with $s=150$ on Mozart.', 'sort_key': 4},
+    'wbcyq': {'name': 'Simple; $s=50$; Mozart', 'sort_key': 0},
+    'recnk': {'name': 'Simple; $s=50$; Rachmaninoff', 'sort_key': 1},
+    'ypwyy': {'name': 'Simple; $s=50$; Scriabin', 'sort_key': 2},
+    'qzkor': {'name': 'Complex; $s=50$; Mozart', 'sort_key': 3},
+    'lkahp': {'name': 'Complex; $s=150$; Mozart', 'sort_key': 4},
+    'bpucu': {'name': 'Complex; $s=200$; Mozart', 'sort_key': 5},
 }
 
 
@@ -35,7 +36,7 @@ def main(loss_filename_or_dirname: str, out_dirname: str):
 
     plt.xlabel('Epoch')
     plt.ylabel(r'Categorical cross-entropy loss $\mathcal{L}$')
-    plt.legend(loc='lower left')
+    plt.legend(loc='upper right', prop={'size': 8})
 
     out_filename = path.join(out_dirname, 'loss.pdf')
     plt.savefig(out_filename, format='pdf', bbox_inches='tight')
