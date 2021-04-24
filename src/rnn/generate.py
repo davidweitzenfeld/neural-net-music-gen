@@ -9,13 +9,13 @@ from utils import *
 from tqdm import trange
 
 ROOT_DIR = root_dir(2, __file__)
-DATA_DIR = path.join('..', '..', 'data')
+DATA_DIR = path.join(ROOT_DIR, 'data')
 LMD_DIR = path.join(DATA_DIR, 'lmd')
 MAESTRO_DIR = path.join(DATA_DIR, 'maestro')
 DATASET_DIR = MAESTRO_DIR
 
-WEIGHTS_DIR = path.join('..', '..', 'weights', 'rnn')
-OUTPUTS_DIR = path.join('..', '..', 'outputs', 'rnn')
+WEIGHTS_DIR = path.join(ROOT_DIR, 'weights', 'rnn')
+OUTPUTS_DIR = path.join(ROOT_DIR, 'outputs', 'rnn')
 
 
 def main(training_id: str):
