@@ -3,25 +3,34 @@ import wget
 import humanize
 import re
 import os
+import argparse
 from os import path
 from urllib.parse import urlparse
 from pathlib import Path
 
+DATA_DIR = path.join('data')
+
 
 # noinspection HttpUrlsUsage
-def main():
-    print('Downloading data from The Lakh MIDI Dataset (https://colinraffel.com/projects/lmd/)')
-    lakh_url = 'http://hog.ee.columbia.edu/craffel/lmd'
-    lakh_dir = 'lmd'
-    download_and_extract('LMD-matched', f'{lakh_url}/lmd_matched.tar.gz', lakh_dir)
-    download_and_extract('LMD-aligned', f'{lakh_url}/lmd_aligned.tar.gz', lakh_dir)
-    download_and_extract('LMD-matched metadata', f'{lakh_url}/lmd_matched_h5.tar.gz', lakh_dir)
-    print()
+def main(datasets: str):
+    if 'lmd' in datasets or len(datasets) == 0:
+        print('Downloading data from The Lakh MIDI Dataset '
+              '(https://colinraffel.com/projects/lmd/)')
+        lakh_url = 'http://hog.ee.columbia.edu/craffel/lmd'
+        lakh_dir = path.join(DATA_DIR, 'lmd')
+        download_and_extract('LMD-matched', f'{lakh_url}/lmd_matched.tar.gz', lakh_dir)
+        download_and_extract('LMD-aligned', f'{lakh_url}/lmd_aligned.tar.gz', lakh_dir)
+        download_and_extract('LMD-matched metadata', f'{lakh_url}/lmd_matched_h5.tar.gz', lakh_dir)
+        print()
 
-    print('Downloading data from MAESTRO Dataset ()')
-    maestro_url = 'https://storage.googleapis.com/magentadata/datasets/maestro/v3.0.0'
-    maestro_dir = 'maestro'
-    download_and_extract('maestro-v3-midi', f'{maestro_url}/maestro-v3.0.0-midi.zip', maestro_dir)
+    if 'maestro' in datasets or len(datasets) == 0:
+        print('Downloading data from MAESTRO Dataset '
+              '(https://magenta.tensorflow.org/datasets/maestro)')
+        maestro_url = 'https://storage.googleapis.com/magentadata/datasets/maestro/v3.0.0'
+        maestro_dir = path.join(DATA_DIR, 'maestro')
+        download_and_extract('maestro-v3-midi', f'{maestro_url}/maestro-v3.0.0-midi.zip',
+                             maestro_dir)
+        print()
 
 
 def download_and_extract(name: str, url: str, target_dir: str = '.', overwrite: bool = False):
@@ -72,4 +81,7 @@ def extract(filename: str, extract_dir: str):
 
 
 if __name__ == '__main__':
-    main()
+    parser = argparse.ArgumentParser(description='Data downloading.')
+    parser.add_argument('--datasets', type=str, nargs='*', choices=['lmd', 'maestro'])
+    args = parser.parse_args()
+    main(args.datasets or [])
